@@ -24,7 +24,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 15px;
+            padding: 10px;
             box-sizing: border-box;
             transition: background 0.5s ease;
         }
@@ -35,18 +35,18 @@
             background: var(--panel-white);
             border: 4px solid var(--border-color);
             border-radius: 30px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             position: relative;
             box-sizing: border-box;
         }
 
         .heart-icon {
-            font-size: 30px;
+            font-size: 25px;
             color: var(--alert-red);
             animation: beat 0.8s infinite;
             display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         @keyframes beat {
@@ -62,35 +62,37 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 15px;
+            padding-bottom: 10px;
             margin-bottom: 20px;
         }
 
+        /* جعل المربعات بجوار بعضها دائماً */
         .main-display {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 400px) {
-            .main-display { grid-template-columns: 1fr; }
-            .value { font-size: 2.8rem !important; }
+            gap: 10px;
         }
 
         .data-card {
             background: #f8fafc;
-            padding: 15px;
+            padding: 12px 5px;
             border-radius: 15px;
             text-align: center;
             border: 1px solid var(--border-color);
         }
 
-        .label { font-size: 0.85rem; color: var(--medical-blue); font-weight: bold; }
-        .value { font-size: 3.2rem; font-weight: 800; margin: 5px 0; font-family: 'Courier New', monospace; }
-        .unit { font-size: 0.75rem; opacity: 0.6; }
+        .label { font-size: 0.75rem; color: var(--medical-blue); font-weight: bold; height: 35px; display: flex; align-items: center; justify-content: center; }
+        .value { font-size: 2rem; font-weight: 800; margin: 5px 0; font-family: 'Courier New', monospace; }
+        .unit { font-size: 0.7rem; opacity: 0.6; }
+
+        /* تعديل الخط للجوالات الصغيرة جداً */
+        @media (max-width: 360px) {
+            .value { font-size: 1.6rem; }
+            .label { font-size: 0.65rem; }
+        }
 
         .ecg-container {
-            height: 80px;
+            height: 60px;
             margin: 20px 0;
             background: #eef2f7;
             border-radius: 10px;
@@ -113,7 +115,7 @@
         }
 
         .action-area {
-            margin-top: 25px;
+            margin-top: 20px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -125,14 +127,26 @@
             padding: 15px;
             border-radius: 50px;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 168, 255, 0.2);
             transition: 0.3s;
         }
 
-        /* تنسيق زر الطباعة الجديد */
+        .btn-upload {
+            background: #f0f2f5;
+            border: 2px dashed var(--medical-blue);
+            padding: 10px;
+            border-radius: 12px;
+            color: var(--medical-blue);
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.3s;
+        }
+
         .btn-print {
             background: #444;
             border: none;
@@ -142,9 +156,8 @@
             font-size: 0.9rem;
             font-weight: bold;
             cursor: pointer;
-            display: none; /* مخفي في البداية */
+            display: none; 
             transition: 0.3s;
-            margin-top: 5px;
         }
 
         .emergency-mode {
@@ -166,14 +179,21 @@
             border-radius: 10px;
             margin-top: 10px;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
-        /* إخفاء عناصر معينة أثناء الطباعة */
+        #file-name {
+            font-size: 0.75rem;
+            color: #2ecc71;
+            margin-top: 5px;
+            display: none;
+            text-align: center;
+        }
+
         @media print {
             body * { visibility: hidden; }
             #device, #device * { visibility: visible; }
-            .btn-start, .btn-print { display: none !important; }
+            .btn-start, .btn-print, .btn-upload { display: none !important; }
         }
     </style>
 </head>
@@ -182,7 +202,7 @@
 <div class="device-frame" id="device">
     <div class="screen-header">
         <div><span class="heart-icon">❤️</span> <strong>المراقب الذكي</strong></div>
-        <div id="time" style="font-size: 0.8rem; opacity: 0.7;">12:00 PM</div>
+        <div id="time" style="font-size: 0.75rem; opacity: 0.7;">12:00 PM</div>
     </div>
 
     <div class="main-display">
@@ -202,16 +222,31 @@
         <div class="ecg-line" id="ecg"></div>
     </div>
 
-    <div id="alert-msg" class="alert-banner">⚠️ تنبيه: قيم خارج النطاق الطبيعي!</div>
+    <div id="file-name">✅ تم إرفاق الملف بنجاح</div>
+    <div id="alert-msg" class="alert-banner">⚠️ تنبيه: قيم غير طبيعية!</div>
 
     <div class="action-area">
         <button class="btn-start" onclick="runDiagnostic()">ابدأ القياس الآن</button>
+        
+        <label for="file-input" class="btn-upload">
+            📎 إرفاق مستند طبي
+        </label>
+        <input type="file" id="file-input" accept="image/*,application/pdf" style="display: none;" onchange="handleFile(this)">
+
         <button id="print-btn" class="btn-print" onclick="printReport()">🖨️ تحميل التقرير (PDF)</button>
-        <div id="status" style="text-align: center; font-size: 0.8rem; color: #7f8c8d;">الجهاز جاهز للعمل</div>
+        <div id="status" style="text-align: center; font-size: 0.75rem; color: #7f8c8d;">الجهاز جاهز</div>
     </div>
 </div>
 
 <script>
+    function handleFile(input) {
+        const fileNameDiv = document.getElementById('file-name');
+        if (input.files && input.files[0]) {
+            fileNameDiv.innerText = "✅ تم إرفاق: " + input.files[0].name;
+            fileNameDiv.style.display = "block";
+        }
+    }
+
     function runDiagnostic() {
         const btn = document.querySelector('.btn-start');
         const printBtn = document.getElementById('print-btn');
@@ -224,7 +259,7 @@
         btn.disabled = true;
         printBtn.style.display = "none";
         btn.innerText = "جاري التحليل...";
-        status.innerText = "يرجى البقاء هادئاً...";
+        status.innerText = "يرجى الثبات...";
         alertBanner.style.display = "none";
         body.classList.remove('emergency-mode');
 
@@ -238,7 +273,6 @@
 
         setTimeout(() => {
             clearInterval(interval);
-            
             const sys = Math.floor(Math.random() * (180 - 100) + 100);
             const dia = Math.floor(Math.random() * (110 - 60) + 60);
             const heartRate = Math.floor(Math.random() * (130 - 55) + 55);
@@ -248,7 +282,7 @@
             btn.disabled = false;
             btn.innerText = "إعادة القياس";
             status.innerText = "اكتمل القياس";
-            printBtn.style.display = "block"; // إظهار زر الطباعة
+            printBtn.style.display = "block"; 
 
             if (sys > 150 || sys < 95 || heartRate > 110 || heartRate < 55) {
                 body.classList.add('emergency-mode');
@@ -258,24 +292,22 @@
         }, 3000);
     }
 
-    // وظيفة الطباعة / حفظ PDF
     function printReport() {
         const timeNow = document.getElementById('time').innerText;
         const bpNow = document.getElementById('bp-val').innerText;
         const hrNow = document.getElementById('hr-val').innerText;
         
-        // إنشاء محتوى الطباعة في نافذة جديدة
         const printWindow = window.open('', '_blank');
         printWindow.document.write(`
             <html lang="ar" dir="rtl">
             <head>
-                <title>تقرير طبي - ${timeNow}</title>
+                <title>تقرير طبي</title>
                 <style>
-                    body { font-family: Arial, sans-serif; padding: 40px; text-align: right; }
-                    .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 30px; }
-                    .result-box { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+                    body { font-family: Arial, sans-serif; padding: 40px; text-align: right; line-height: 1.6; }
+                    .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+                    .result-box { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
                     .value { font-size: 24px; font-weight: bold; color: #00a8ff; }
-                    .footer { margin-top: 50px; font-size: 12px; color: #777; }
+                    .footer { margin-top: 50px; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
                 </style>
             </head>
             <body>
@@ -283,6 +315,7 @@
                     <h1>تقرير القياس الحيوي الدوري</h1>
                     <p>التاريخ والوقت: ${new Date().toLocaleDateString('ar-EG')} | ${timeNow}</p>
                 </div>
+                
                 <div class="result-box">
                     <p>ضغط الدم (SYS/DIA): <span class="value">${bpNow} mmHg</span></p>
                 </div>
@@ -290,7 +323,7 @@
                     <p>معدل نبضات القلب: <span class="value" style="color:#2ecc71">${hrNow} BPM</span></p>
                 </div>
                 <div class="footer">
-                    <p>تم استخراج هذا التقرير آلياً بواسطة نظام المراقب الذكي.</p>
+                    <p>تم استخراج هذا التقرير آلياً بواسطة نظام المراقب الذكي (أسرى العسلي - نبراس - بشرى).</p>
                 </div>
             </body>
             </html>
