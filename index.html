@@ -124,9 +124,16 @@
             100% { box-shadow: 0 0 0 0 rgba(0, 168, 255, 0); }
         }
 
-        .main-display { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        /* تعديل الشبكة لعرض البطاقات الجديدة تحت القديمة */
+        .main-display { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
         .data-card { background: #f8fafc; padding: 15px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color); }
         .value { font-size: 2.2rem; font-weight: 800; color: var(--medical-blue); }
+        .unit { font-size: 0.9rem; color: #7f8c8d; font-weight: normal; }
+
         .ecg-container { height: 60px; margin: 20px 0; background: #eef2f7; border-radius: 10px; overflow: hidden; }
         .ecg-line { width: 200%; height: 100%; background: linear-gradient(90deg, transparent 0%, var(--medical-green) 50%, transparent 100%); background-size: 50% 100%; animation: moveLine 2s linear infinite; }
 
@@ -140,17 +147,16 @@
             padding: 8px;
             border-top: 1px solid #ddd;
             display: flex;
-            gap: 6px; /* تقليل المسافة لتناسب العرض الأفقي */
+            gap: 6px; 
             align-items: center;
             background: white;
             border-radius: 0 0 20px 20px;
-            overflow: hidden; /* منع خروج العناصر */
+            overflow: hidden; 
         }
 
-        /* تحسين صندوق الإدخال ليكون مرناً جداً */
         .chat-controls input { 
             flex: 1; 
-            min-width: 0; /* مهم جداً للسماح للعنصر بالتقلص في Flexbox */
+            min-width: 0; 
             padding: 8px 12px; 
             border-radius: 20px; 
             border: 1px solid #ccc; 
@@ -201,16 +207,28 @@
                 <div class="label">النبض (BPM)</div>
                 <div class="value" id="hr-val">--</div>
             </div>
+            <div class="data-card">
+                <div class="label">الحرارة</div>
+                <div class="value" id="temp-val">-- <span class="unit">°C</span></div>
+            </div>
+            <div class="data-card">
+                <div class="label">الهيموجلوبين</div>
+                <div class="value" id="hgb-val">-- <span class="unit">g/dL</span></div>
+            </div>
+            <div class="data-card" style="grid-column: span 2;">
+                <div class="label">لزوجة الدم</div>
+                <div class="value" id="visc-val">-- <span class="unit">mPa·s</span></div>
+            </div>
         </div>
         <div class="ecg-container">
             <div class="ecg-line"></div>
         </div>
-        <button class="btn-start" id="start-btn" onclick="runDiagnostic()">بدء الفحص والتحليل</button>
+        <button class="btn-start" id="start-btn" onclick="runDiagnostic()">بدء الفحص والتحليل الشامل</button>
     </div>
 
     <div class="split-container" id="results-view">
         <div class="report-side">
-            <h3 style="color:var(--medical-blue); margin: 0 0 10px 0;">📋 التقرير</h3>
+            <h3 style="color:var(--medical-blue); margin: 0 0 10px 0;">📋 التقرير الطبي</h3>
             <div id="report-content" style="flex-grow: 1; font-size: 0.85rem;"></div>
             
             <button onclick="window.print()" style="margin-top:10px; width:100%; padding:8px; border-radius:8px; border:none; background:var(--medical-blue); color:white; cursor:pointer; font-weight: bold; font-size: 0.8rem;">
@@ -229,7 +247,7 @@
             </div>
 
             <div class="chat-messages">
-                <div class="message">مرحباً! لقد تم تحليل بياناتك. هل لديك أي استفسار طبي؟</div>
+                <div class="message">مرحباً! لقد تم تحليل الضغط، النبض، الحرارة، ونسبة الدم بنجاح. هل لديك أي استفسار؟</div>
             </div>
             
             <div class="chat-controls">
@@ -248,19 +266,25 @@
 <script>
     function runDiagnostic() {
         const btn = document.getElementById('start-btn');
-        btn.innerText = "جاري التحليل...";
+        btn.innerText = "جاري سحب البيانات...";
         btn.disabled = true;
 
         setTimeout(() => {
             document.getElementById('initial-view').style.display = 'none';
             document.getElementById('results-view').classList.add('active');
             
-            const sys = 118, dia = 79, hr = 72;
+            // قيم افتراضية للمؤشرات الجديدة
+            const sys = 118, dia = 79, hr = 72, temp = 37.1, hgb = 14.2, visc = 4.5;
+            
             document.getElementById('report-content').innerHTML = `
-                <div style="border: 1px solid #eee; padding: 8px; border-radius: 8px; background: #fafafa;">
-                    <p style="margin:3px 0;"><strong>الضغط:</strong> ${sys}/${dia}</p>
-                    <p style="margin:3px 0;"><strong>النبض:</strong> ${hr} BPM</p>
-                    <p style="color:var(--medical-green); font-weight:bold; margin:3px 0;">طبيعي</p>
+                <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px; background: #fafafa;">
+                    <p style="margin:4px 0;"><strong>ضغط الدم:</strong> ${sys}/${dia} mmHg</p>
+                    <p style="margin:4px 0;"><strong>معدل النبض:</strong> ${hr} BPM</p>
+                    <p style="margin:4px 0;"><strong>درجة الحرارة:</strong> ${temp} °C</p>
+                    <p style="margin:4px 0;"><strong>نسبة الهيموجلوبين:</strong> ${hgb} g/dL</p>
+                    <p style="margin:4px 0;"><strong>لزوجة الدم:</strong> ${visc} mPa·s</p>
+                    <hr style="border:0; border-top:1px solid #eee; margin:8px 0;">
+                    <p style="color:var(--medical-green); font-weight:bold; margin:3px 0; text-align:center;">الحالة الصحية: مستقرة جداً</p>
                 </div>
             `;
         }, 1500);
@@ -270,7 +294,7 @@
         document.getElementById('results-view').classList.remove('active');
         document.getElementById('initial-view').style.display = 'block';
         const btn = document.getElementById('start-btn');
-        btn.innerText = "بدء الفحص والتحليل";
+        btn.innerText = "بدء الفحص والتحليل الشامل";
         btn.disabled = false;
     }
 
