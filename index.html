@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>أسرى العسلي - نبراس - بشرى</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --medical-blue: #00a8ff;
@@ -26,315 +27,279 @@
             margin: 0;
             padding: 10px;
             box-sizing: border-box;
-            transition: background 0.5s ease;
         }
 
         .device-frame {
             width: 100%;
-            max-width: 450px;
+            max-width: 1100px;
             background: var(--panel-white);
             border: 4px solid var(--border-color);
             border-radius: 30px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             position: relative;
-            box-sizing: border-box;
+            overflow: hidden;
         }
 
-        .heart-icon {
-            font-size: 25px;
-            color: var(--alert-red);
-            animation: beat 0.8s infinite;
-            display: inline-block;
-            margin-bottom: 5px;
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
         }
-
-        @keyframes beat {
-            0% { transform: scale(1); }
-            15% { transform: scale(1.3); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.15); }
-            60% { transform: scale(1); }
+        .nav-icon {
+            font-size: 1.4rem;
+            color: var(--medical-blue);
+            cursor: pointer;
+            transition: 0.3s;
         }
+        .nav-icon:hover { transform: scale(1.1); }
 
         .screen-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
 
-        /* جعل المربعات بجوار بعضها دائماً */
-        .main-display {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        .split-container {
+            display: none; 
+            gap: 15px;
+            animation: fadeIn 0.5s ease;
+            flex-direction: row; 
         }
 
-        .data-card {
-            background: #f8fafc;
-            padding: 12px 5px;
-            border-radius: 15px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-        }
+        .split-container.active { display: flex; }
 
-        .label { font-size: 0.75rem; color: var(--medical-blue); font-weight: bold; height: 35px; display: flex; align-items: center; justify-content: center; }
-        .value { font-size: 2rem; font-weight: 800; margin: 5px 0; font-family: 'Courier New', monospace; }
-        .unit { font-size: 0.7rem; opacity: 0.6; }
-
-        /* تعديل الخط للجوالات الصغيرة جداً */
-        @media (max-width: 360px) {
-            .value { font-size: 1.6rem; }
-            .label { font-size: 0.65rem; }
-        }
-
-        .ecg-container {
-            height: 60px;
-            margin: 20px 0;
-            background: #eef2f7;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .ecg-line {
-            width: 200%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent 0%, var(--medical-green) 50%, transparent 100%);
-            background-size: 50% 100%;
-            animation: moveLine 2s linear infinite;
-            opacity: 0.8;
-        }
-
-        @keyframes moveLine {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-        }
-
-        .action-area {
-            margin-top: 20px;
+        .report-side {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            min-width: 0; 
         }
 
-        .btn-start {
-            background: linear-gradient(45deg, var(--medical-blue), var(--medical-green));
-            border: none;
-            padding: 15px;
-            border-radius: 50px;
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 168, 255, 0.2);
-            transition: 0.3s;
+        .chat-side {
+            flex: 1.2; 
+            background: #f8fafc;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            position: relative;
+            min-height: 350px;
+            min-width: 0;
         }
 
-        .btn-upload {
-            background: #f0f2f5;
-            border: 2px dashed var(--medical-blue);
-            padding: 10px;
-            border-radius: 12px;
-            color: var(--medical-blue);
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .btn-print {
-            background: #444;
-            border: none;
-            padding: 12px;
-            border-radius: 50px;
-            color: white;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: none; 
-            transition: 0.3s;
-        }
-
-        .emergency-mode {
-            background-color: #fff5f5 !important;
-            animation: danger-glow 1s infinite alternate;
-        }
-
-        @keyframes danger-glow {
-            from { border-color: var(--border-color); }
-            to { border-color: var(--alert-red); box-shadow: 0 0 20px rgba(231, 76, 60, 0.2); }
-        }
-
-        .alert-banner {
+        #voice-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.96);
             display: none;
-            background: var(--alert-red);
-            color: white;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 20px;
             text-align: center;
+        }
+
+        #voice-overlay img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--medical-blue);
+            animation: pulse-blue 2s infinite;
+        }
+
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(0, 168, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 168, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 168, 255, 0); }
+        }
+
+        .main-display { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .data-card { background: #f8fafc; padding: 15px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color); }
+        .value { font-size: 2.2rem; font-weight: 800; color: var(--medical-blue); }
+        .ecg-container { height: 60px; margin: 20px 0; background: #eef2f7; border-radius: 10px; overflow: hidden; }
+        .ecg-line { width: 200%; height: 100%; background: linear-gradient(90deg, transparent 0%, var(--medical-green) 50%, transparent 100%); background-size: 50% 100%; animation: moveLine 2s linear infinite; }
+
+        @keyframes moveLine { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .chat-messages { flex: 1; padding: 10px; overflow-y: auto; font-size: 0.85rem; }
+        .message { background: #e1f5fe; padding: 8px 12px; border-radius: 12px; margin-bottom: 10px; width: fit-content; max-width: 90%; line-height: 1.4; }
+
+        .chat-controls {
             padding: 8px;
-            border-radius: 10px;
-            margin-top: 10px;
-            font-weight: bold;
-            font-size: 0.85rem;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 6px; /* تقليل المسافة لتناسب العرض الأفقي */
+            align-items: center;
+            background: white;
+            border-radius: 0 0 20px 20px;
+            overflow: hidden; /* منع خروج العناصر */
         }
 
-        #file-name {
-            font-size: 0.75rem;
-            color: #2ecc71;
-            margin-top: 5px;
-            display: none;
-            text-align: center;
+        /* تحسين صندوق الإدخال ليكون مرناً جداً */
+        .chat-controls input { 
+            flex: 1; 
+            min-width: 0; /* مهم جداً للسماح للعنصر بالتقلص في Flexbox */
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            border: 1px solid #ccc; 
+            outline: none; 
+            font-size: 0.85rem; 
         }
 
-        @media print {
-            body * { visibility: hidden; }
-            #device, #device * { visibility: visible; }
-            .btn-start, .btn-print, .btn-upload { display: none !important; }
+        .icon-btn { cursor: pointer; color: var(--medical-blue); font-size: 1.1rem; flex-shrink: 0; }
+        
+        .btn-start { background: linear-gradient(45deg, var(--medical-blue), var(--medical-green)); color: white; border: none; padding: 15px; border-radius: 50px; width: 100%; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        
+        .btn-back { background: #f0f2f5; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px; border-radius: 10px; margin-top: 8px; cursor: pointer; font-weight: 600; width: 100%; font-size: 0.85rem; }
+
+        @media (max-width: 600px) {
+            .device-frame { padding: 10px; border-radius: 15px; }
+            .split-container { gap: 8px; }
+            .report-side, .chat-side { padding: 8px; border-radius: 12px; }
+            .value { font-size: 1.4rem; }
+            .message { font-size: 0.75rem; }
+            h3 { font-size: 0.9rem; margin-bottom: 5px !important; }
+            .chat-side { min-height: 250px; }
+            .chat-controls { padding: 5px; }
+            .chat-controls input { padding: 6px 10px; font-size: 0.8rem; }
+            .icon-btn { font-size: 1rem; }
         }
     </style>
 </head>
-<body id="body-bg">
+<body>
 
-<div class="device-frame" id="device">
+<div class="device-frame">
+    <div class="top-nav">
+        <div class="nav-icon" title="المحادثات السابقة"><i class="fas fa-comments"></i></div>
+        <div id="time" style="font-weight: bold; font-size: 0.9rem;">12:00 PM</div>
+        <div class="nav-icon" title="الحساب الشخصي"><i class="fas fa-user-circle"></i></div>
+    </div>
+
     <div class="screen-header">
-        <div><span class="heart-icon">❤️</span> <strong>المراقب الذكي</strong></div>
-        <div id="time" style="font-size: 0.75rem; opacity: 0.7;">12:00 PM</div>
+        <strong><i class="fas fa-heartbeat" style="color:var(--alert-red)"></i> المراقب الذكي</strong>
     </div>
 
-    <div class="main-display">
-        <div class="data-card">
-            <div class="label">ضغط الدم (SYS/DIA)</div>
-            <div class="value" id="bp-val" style="color: var(--medical-blue);">--</div>
-            <div class="unit">mmHg</div>
+    <div id="initial-view">
+        <div class="main-display">
+            <div class="data-card">
+                <div class="label">الضغط (SYS/DIA)</div>
+                <div class="value" id="bp-val">--</div>
+            </div>
+            <div class="data-card">
+                <div class="label">النبض (BPM)</div>
+                <div class="value" id="hr-val">--</div>
+            </div>
         </div>
-        <div class="data-card">
-            <div class="label">النبض (BPM)</div>
-            <div class="value" id="hr-val" style="color: var(--medical-green);">--</div>
-            <div class="unit">نبضة / دقيقة</div>
+        <div class="ecg-container">
+            <div class="ecg-line"></div>
         </div>
+        <button class="btn-start" id="start-btn" onclick="runDiagnostic()">بدء الفحص والتحليل</button>
     </div>
 
-    <div class="ecg-container">
-        <div class="ecg-line" id="ecg"></div>
-    </div>
+    <div class="split-container" id="results-view">
+        <div class="report-side">
+            <h3 style="color:var(--medical-blue); margin: 0 0 10px 0;">📋 التقرير</h3>
+            <div id="report-content" style="flex-grow: 1; font-size: 0.85rem;"></div>
+            
+            <button onclick="window.print()" style="margin-top:10px; width:100%; padding:8px; border-radius:8px; border:none; background:var(--medical-blue); color:white; cursor:pointer; font-weight: bold; font-size: 0.8rem;">
+                <i class="fas fa-print"></i> طباعة
+            </button>
+            <button class="btn-back" onclick="resetView()">
+                <i class="fas fa-redo"></i> إعادة فحص
+            </button>
+        </div>
 
-    <div id="file-name">✅ تم إرفاق الملف بنجاح</div>
-    <div id="alert-msg" class="alert-banner">⚠️ تنبيه: قيم غير طبيعية!</div>
+        <div class="chat-side">
+            <div id="voice-overlay">
+                <img src="osra.png" alt="واجهة المحادثة الصوتية">
+                <p style="margin-top:10px; font-weight:bold; color:var(--medical-blue); font-size: 0.85rem;">نسمعك الآن...</p>
+                <button onclick="stopVoiceChat()" style="background:var(--alert-red); color:white; border:none; padding:4px 12px; border-radius:12px; cursor:pointer; font-size: 0.75rem;">إغلاق</button>
+            </div>
 
-    <div class="action-area">
-        <button class="btn-start" onclick="runDiagnostic()">ابدأ القياس الآن</button>
-        
-        <label for="file-input" class="btn-upload">
-            📎 إرفاق مستند طبي
-        </label>
-        <input type="file" id="file-input" accept="image/*,application/pdf" style="display: none;" onchange="handleFile(this)">
-
-        <button id="print-btn" class="btn-print" onclick="printReport()">🖨️ تحميل التقرير (PDF)</button>
-        <div id="status" style="text-align: center; font-size: 0.75rem; color: #7f8c8d;">الجهاز جاهز</div>
+            <div class="chat-messages">
+                <div class="message">مرحباً! لقد تم تحليل بياناتك. هل لديك أي استفسار طبي؟</div>
+            </div>
+            
+            <div class="chat-controls">
+                <label for="file-up" style="flex-shrink:0;"><i class="fas fa-paperclip icon-btn"></i></label>
+                <input type="file" id="file-up" style="display:none">
+                
+                <input type="text" id="chat-input" placeholder="اسأل أسرى...">
+                
+                <i class="fas fa-paper-plane icon-btn" onclick="sendMessage()" title="إرسال" style="color: var(--medical-green);"></i>
+                <i class="fas fa-microphone icon-btn" style="color:var(--alert-red)" onclick="startVoiceChat()" title="تحدث"></i>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    function handleFile(input) {
-        const fileNameDiv = document.getElementById('file-name');
-        if (input.files && input.files[0]) {
-            fileNameDiv.innerText = "✅ تم إرفاق: " + input.files[0].name;
-            fileNameDiv.style.display = "block";
+    function runDiagnostic() {
+        const btn = document.getElementById('start-btn');
+        btn.innerText = "جاري التحليل...";
+        btn.disabled = true;
+
+        setTimeout(() => {
+            document.getElementById('initial-view').style.display = 'none';
+            document.getElementById('results-view').classList.add('active');
+            
+            const sys = 118, dia = 79, hr = 72;
+            document.getElementById('report-content').innerHTML = `
+                <div style="border: 1px solid #eee; padding: 8px; border-radius: 8px; background: #fafafa;">
+                    <p style="margin:3px 0;"><strong>الضغط:</strong> ${sys}/${dia}</p>
+                    <p style="margin:3px 0;"><strong>النبض:</strong> ${hr} BPM</p>
+                    <p style="color:var(--medical-green); font-weight:bold; margin:3px 0;">طبيعي</p>
+                </div>
+            `;
+        }, 1500);
+    }
+
+    function resetView() {
+        document.getElementById('results-view').classList.remove('active');
+        document.getElementById('initial-view').style.display = 'block';
+        const btn = document.getElementById('start-btn');
+        btn.innerText = "بدء الفحص والتحليل";
+        btn.disabled = false;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chat-input');
+        if(input.value.trim() !== "") {
+            const chatBox = document.querySelector('.chat-messages');
+            const userMsg = document.createElement('div');
+            userMsg.className = "message";
+            userMsg.style.background = "#e8f5e9";
+            userMsg.style.marginRight = "auto";
+            userMsg.innerText = input.value;
+            chatBox.appendChild(userMsg);
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
     }
 
-    function runDiagnostic() {
-        const btn = document.querySelector('.btn-start');
-        const printBtn = document.getElementById('print-btn');
-        const status = document.getElementById('status');
-        const bp = document.getElementById('bp-val');
-        const hr = document.getElementById('hr-val');
-        const body = document.getElementById('body-bg');
-        const alertBanner = document.getElementById('alert-msg');
-
-        btn.disabled = true;
-        printBtn.style.display = "none";
-        btn.innerText = "جاري التحليل...";
-        status.innerText = "يرجى الثبات...";
-        alertBanner.style.display = "none";
-        body.classList.remove('emergency-mode');
-
-        let timer = 0;
-        const interval = setInterval(() => {
-            bp.innerText = Math.floor(Math.random() * 50 + 80);
-            hr.innerText = Math.floor(Math.random() * 40 + 60);
-            timer++;
-            if(timer > 15) clearInterval(interval);
-        }, 100);
-
-        setTimeout(() => {
-            clearInterval(interval);
-            const sys = Math.floor(Math.random() * (180 - 100) + 100);
-            const dia = Math.floor(Math.random() * (110 - 60) + 60);
-            const heartRate = Math.floor(Math.random() * (130 - 55) + 55);
-
-            bp.innerText = `${sys}/${dia}`;
-            hr.innerText = heartRate;
-            btn.disabled = false;
-            btn.innerText = "إعادة القياس";
-            status.innerText = "اكتمل القياس";
-            printBtn.style.display = "block"; 
-
-            if (sys > 150 || sys < 95 || heartRate > 110 || heartRate < 55) {
-                body.classList.add('emergency-mode');
-                alertBanner.style.display = "block";
-                status.innerText = "تنبيه طبي!";
-            }
-        }, 3000);
+    function startVoiceChat() {
+        document.getElementById('voice-overlay').style.display = 'flex';
     }
 
-    function printReport() {
-        const timeNow = document.getElementById('time').innerText;
-        const bpNow = document.getElementById('bp-val').innerText;
-        const hrNow = document.getElementById('hr-val').innerText;
-        
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
-            <html lang="ar" dir="rtl">
-            <head>
-                <title>تقرير طبي</title>
-                <style>
-                    body { font-family: Arial, sans-serif; padding: 40px; text-align: right; line-height: 1.6; }
-                    .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-                    .result-box { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
-                    .value { font-size: 24px; font-weight: bold; color: #00a8ff; }
-                    .footer { margin-top: 50px; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <h1>تقرير القياس الحيوي الدوري</h1>
-                    <p>التاريخ والوقت: ${new Date().toLocaleDateString('ar-EG')} | ${timeNow}</p>
-                </div>
-                
-                <div class="result-box">
-                    <p>ضغط الدم (SYS/DIA): <span class="value">${bpNow} mmHg</span></p>
-                </div>
-                <div class="result-box">
-                    <p>معدل نبضات القلب: <span class="value" style="color:#2ecc71">${hrNow} BPM</span></p>
-                </div>
-                <div class="footer">
-                    <p>تم استخراج هذا التقرير آلياً بواسطة نظام المراقب الذكي (أسرى العسلي - نبراس - بشرى).</p>
-                </div>
-            </body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
+    function stopVoiceChat() {
+        document.getElementById('voice-overlay').style.display = 'none';
     }
 
     setInterval(() => {
         const now = new Date();
-        document.getElementById('time').innerText = now.toLocaleTimeString();
+        document.getElementById('time').innerText = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
     }, 1000);
 </script>
 
